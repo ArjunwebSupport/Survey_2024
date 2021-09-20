@@ -1,0 +1,170 @@
+{
+    "lstRegisterFields": [
+      {
+        "RegisterFieldId": 18,
+        "FormId": 1,
+        "QuestionType": "CheckBox",
+        "IsRequired": "yes",
+        "Name": "Type of Operating System ?",
+        "lstRegisterOptions": [
+          {
+            "RegisterOptionId": "11",
+            "QOption": "Android"
+          },
+          {
+            "RegisterOptionId": "12",
+            "QOption": "iOS"
+          },
+          {
+            "RegisterOptionId": "13",
+            "QOption": "Windows"
+          },
+          {
+            "RegisterOptionId": "14",
+            "QOption": "Linux"
+          }
+        ]
+      },
+      {
+        "RegisterFieldId": 7,
+        "FormId": 2,
+        "QuestionType": "Radio",
+        "IsRequired": "no",
+        "Name": "Type of Brand ?",
+        "lstRegisterOptions": [
+          {
+            "RegisterOptionId": "21",
+            "QOption": "Samsung"
+          },
+          {
+            "RegisterOptionId": "22",
+            "QOption": "Apple"
+          },
+          {
+            "RegisterOptionId": "23",
+            "QOption": "Motorola"
+          },
+          {
+            "RegisterOptionId": "24",
+            "QOption": "Google"
+          },
+          {
+            "RegisterOptionId": "25",
+            "QOption": "HTC"
+          },
+          {
+            "RegisterOptionId": "26",
+            "QOption": "LG"
+          }
+        ]
+      },{
+        "RegisterFieldId": 109,
+        "FormId": 201,
+        "QuestionType": "dropdown",
+        "IsRequired": "yes",
+        "Name": "Payment mode Dropdown?",
+        "lstRegisterOptions": [
+          {
+            "RegisterOptionId": "81",
+            "QOption": "Cash On Delivery"
+          },
+          {
+            "RegisterOptionId": "82",
+            "QOption": "Android Pay"
+          },
+          {
+            "RegisterOptionId": "83",
+            "QOption": "Net Banking"
+          },
+          {
+            "RegisterOptionId": "84",
+            "QOption": "Credit/Debit"
+          },
+          {
+            "RegisterOptionId": "85",
+            "QOption": "Saved Cards"
+          },
+          {
+            "RegisterOptionId": "86",
+            "QOption": "My Wallet"
+          }
+        ]
+      },
+      {
+        "RegisterFieldId": 6,
+        "FormId": 1,
+        "QuestionType": "CheckBox",
+        "IsRequired": "no",
+        "Name": "Included features ?",
+        "lstRegisterOptions": [
+          {
+            "RegisterOptionId": "31",
+            "QOption": "FM Player"
+          },
+          {
+            "RegisterOptionId": "32",
+            "QOption": "Finger Print"
+          },
+          {
+            "RegisterOptionId": "33",
+            "QOption": "NFC"
+          },
+          {
+            "RegisterOptionId": "34",
+            "QOption": "USB"
+          },
+          {
+            "RegisterOptionId": "35",
+            "QOption": "Wireless Charging"
+          }
+        ]
+      },
+      {
+        "RegisterFieldId": 19,
+        "FormId": 2,
+        "QuestionType": "Radio",
+        "IsRequired": "yes",
+        "Name": "Payment mode ?",
+        "lstRegisterOptions": [
+          {
+            "RegisterOptionId": "61",
+            "QOption": "Cash On Delivery"
+          },
+          {
+            "RegisterOptionId": "62",
+            "QOption": "Android Pay"
+          },
+          {
+            "RegisterOptionId": "63",
+            "QOption": "Net Banking"
+          },
+          {
+            "RegisterOptionId": "64",
+            "QOption": "Credit/Debit"
+          },
+          {
+            "RegisterOptionId": "65",
+            "QOption": "Saved Cards"
+          },
+          {
+            "RegisterOptionId": "66",
+            "QOption": "My Wallet"
+          }
+        ]
+      },
+      {
+        "RegisterFieldId": 119,
+        "FormId": 2,
+        "QuestionType": "edittext",
+        "IsRequired": "yes",
+        "Name": "Mobile Number",
+        "lstRegisterOptions": [
+          {
+            "RegisterOptionId": "71",
+            "QOption": ""
+          }
+        ]
+      }
+    ],
+  "msg": "success"
+}
