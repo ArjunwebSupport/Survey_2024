@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.gosurveyrastra.survey"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 29
-        versionName "29.0"
+        targetSdkVersion 30
+        versionCode 43
+        versionName "43.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.squareup.retrofit:retrofit:1.6.1'
     implementation 'com.github.jumadeveloper:networkmanager:0.0.2'
     implementation 'com.github.drawers:SpinnerDatePicker:1.0.6'
+
 }
 repositories {
     mavenCentral()

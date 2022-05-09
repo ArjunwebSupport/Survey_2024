@@ -46,7 +46,12 @@ public class SurveyListAdapter  extends RecyclerView.Adapter<SurveyListAdapter.M
         }else {
             Picasso.get().load(dataModelArrayList.get(position).getBannerUrl()).error(R.drawable.home_icon3).into(holder.icon);
         }
-        holder.titles.setText(dataModelArrayList.get(position).getFormName());
+        if(dataModelArrayList.get(position).getDisplayName().equalsIgnoreCase("null")){
+            holder.titles.setText(dataModelArrayList.get(position).getFormName());
+
+        }else {
+            holder.titles.setText(dataModelArrayList.get(position).getDisplayName());
+        }
     }
 
     @Override

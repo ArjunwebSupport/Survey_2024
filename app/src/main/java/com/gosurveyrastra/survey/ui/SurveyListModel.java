@@ -140,5 +140,15 @@ public class SurveyListModel {
     String IsFormRegistration;
     String IsActive;
 
+    public String getDisplayName() {
+        return DisplayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        DisplayName = displayName;
+    }
+
+    String DisplayName;
+
 
 }

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
@@ -75,6 +76,7 @@ public class SurveyDetailsActivity extends AppCompatActivity {
     String name;
     public static String formanews;
     public static String formid;
+    public static String DisplayName;
     List<View> allViewInstance = new ArrayList<View>();
     JSONObject jsonObject = new JSONObject();
     private JSONObject optionsObj;
@@ -94,8 +96,18 @@ public class SurveyDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_survey_details);
         formanews=getIntent().getStringExtra("formanews");
         formid=getIntent().getStringExtra("formid");
+        DisplayName=getIntent().getStringExtra("DisplayName");
         TextView surveyname=findViewById(R.id.surveyname);
-        surveyname.setText(""+formanews);
+        surveyname.setText(""+DisplayName);
+        TextView signup1=findViewById(R.id.signup1);
+        signup1.setPaintFlags(signup1.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+
+        signup1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
         SharedPreferences prefs = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE);
         name = prefs.getString(""+formanews, "No name defined");
         mDatabase = openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);
@@ -121,8 +133,8 @@ public class SurveyDetailsActivity extends AppCompatActivity {
             jsonObject = new JSONObject(name);
             JSONArray customOptnList = jsonObject.getJSONArray("lstRegisterFields");
             ia2=customOptnList.length();
-            Log.e("strrrrrrr","init "+customOptnList.length());
-            Log.e("strrrrrrr","init "+ia2);
+            Log.e("btrrrrrrr","init "+customOptnList.length());
+            Log.e("btrrrrrrr","init "+ia2);
             for (int noOfCustomOpt = 0; noOfCustomOpt < customOptnList.length(); noOfCustomOpt++) {
                 JSONObject eachData = customOptnList.getJSONObject(noOfCustomOpt);
                 TextView customOptionsName = new TextView(SurveyDetailsActivity.this);
@@ -143,7 +155,12 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                     ArrayList<String> SpinnerOptions = new ArrayList<String>();
                     SpinnerOptions.add("");
                     for (int j = 0; j < dropDownJSONOpt.length(); j++) {
-                        String optionString = dropDownJSONOpt.getJSONObject(j).getString("QOption");
+                        String optionString;
+                        if(dropDownJSONOpt.getJSONObject(j).getString("QOption").equalsIgnoreCase("")){
+                            optionString = dropDownJSONOpt.getJSONObject(j).getString("QOption");
+                        }else {
+                            optionString = dropDownJSONOpt.getJSONObject(j).getString("QOption");
+                        }
                         SpinnerOptions.add(optionString);
                     }
                     ArrayAdapter<String> spinnerArrayAdapter = null;
@@ -154,11 +171,9 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                            try {
-                                String variant_name = dropDownJSONOpt.getJSONObject(position).getString("QOption");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            Log.e("btrrrrrrrr",""+parentView.getItemAtPosition(position).toString());
+
+
                         }
                         @Override
                         public void onNothingSelected(AdapterView<?> parentView) {
@@ -177,9 +192,20 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                         RadioButton rb = new RadioButton(SurveyDetailsActivity.this);
                         rg.addView(rb, params);
                         rb.setLayoutParams(params);
-                        rb.setTag(radioButtonJSONOpt.getJSONObject(j).getString("QOption"));
+                        if(radioButtonJSONOpt.getJSONObject(j).getString("QOption").equalsIgnoreCase("")){
+                            rb.setTag(radioButtonJSONOpt.getJSONObject(j).getString("QOption"));
+
+                        }else {
+                            rb.setTag(radioButtonJSONOpt.getJSONObject(j).getString("QOption"));
+                        }
                         rb.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                        String optionString = radioButtonJSONOpt.getJSONObject(j).getString("QOption");
+                        String optionString;
+                        if(radioButtonJSONOpt.getJSONObject(j).getString("QOption").equalsIgnoreCase("")){
+                            optionString=radioButtonJSONOpt.getJSONObject(j).getString("QOption");
+                        }else {
+                            optionString=radioButtonJSONOpt.getJSONObject(j).getString("QOption");
+
+                        }
                         rb.setText(optionString);
                         rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                         rb.setTextColor(ContextCompat.getColor(SurveyDetailsActivity.this, R.color.textchoice));
@@ -197,7 +223,6 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                     }
                     viewProductLayout.addView(rg, params);
                     dataModelArrayList.add("false");
-
                 }
                 if (eachData.getString("QuestionType").equalsIgnoreCase("checkbox")) {
                     JSONArray checkBoxJSONOpt = eachData.getJSONArray("lstRegisterOptions");
@@ -207,7 +232,11 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                     final ListView listview = new ListView(this);
                     listview.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                     for (int j = 0; j < checkBoxJSONOpt.length(); j++) {
-                        values[j] = ""+checkBoxJSONOpt.getJSONObject(j).getString("QOption");
+                        if(checkBoxJSONOpt.getJSONObject(j).getString("QOption").equalsIgnoreCase("")){
+                            values[j] = ""+checkBoxJSONOpt.getJSONObject(j).getString("QOption");
+                        }else {
+                            values[j] = ""+checkBoxJSONOpt.getJSONObject(j).getString("QOption");
+                        }
 //                        CheckBox chk = new CheckBox(SurveyDetailsActivity.this);
 //                        chk.setBackgroundColor(Color.parseColor("#FFFFFF"));
 //                        allViewInstance.add(chk);
@@ -251,7 +280,7 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                                 i++ ;
                             }
                             ValueHolder = ValueHolder.replaceAll("(,)*$", "");
-                            Log.e("strrrrr","ValueHolder  "+ValueHolder);
+                            Log.e("btrrrrr","ValueHolder  "+ValueHolder);
                             if(ValueHolder==""){
                                 validation=false;
                             }else {
@@ -271,9 +300,9 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                                Log.e("strrrrr",""+dataModelArrayList1);
+                                Log.e("btrrrrr",""+dataModelArrayList1);
                                 validation=true;
-                                dataModelArrayList.set(finalNoOfCustomOpt, "true");
+
                             }
                         }
                     });
@@ -341,13 +370,13 @@ public class SurveyDetailsActivity extends AppCompatActivity {
         ia1=0;
         try {
             JSONArray customOptnList = jsonObject.getJSONArray("lstRegisterFields");
-            Log.e("strrrrrrr","sav "+customOptnList.length());
+            Log.e("btrrrrrrr","sav "+customOptnList.length());
             for (int noOfViews = 0; noOfViews < customOptnList.length(); noOfViews++) {
                 JSONObject eachData = customOptnList.getJSONObject(noOfViews);
                 if (eachData.getString("QuestionType").equalsIgnoreCase("dropdown")) {
                     Spinner spinner = (Spinner) allViewInstance.get(noOfViews);
                     JSONArray dropDownJSONOpt = eachData.getJSONArray("lstRegisterOptions");
-                    String variant_name = dropDownJSONOpt.getJSONObject(spinner.getSelectedItemPosition()).getString("QOption");
+//                    String variant_name = dropDownJSONOpt.getJSONObject(spinner.getSelectedItemPosition()).getString("QOption");
                     String selectedItemTitle = spinner.getSelectedItem().toString();
                     if(selectedItemTitle==""){
                         validation=false;
@@ -356,13 +385,14 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                         errorText.setText("Please select a value");
                     }else {
                         validation=true;
-                        Log.e("strrrrrrrr", "variant_name " + variant_name);
-                        Log.e("strrrrrrrr", "selectedItemTitle " + selectedItemTitle);
+                        Log.e("btrrrrrrrr", "selectedItemTitle " + selectedItemTitle);
                         dataModelArrayList.set(noOfViews, "true");
                     }
 
+
+
                 }
-                if (eachData.getString("QuestionType").equalsIgnoreCase("radio")) {
+                else if (eachData.getString("QuestionType").equalsIgnoreCase("radio")) {
                     try{
                         RadioGroup radioGroup = (RadioGroup) allViewInstance.get(noOfViews);
                         ((RadioButton)radioGroup.getChildAt(0)).setError(null);
@@ -377,6 +407,7 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                             dataModelArrayList.set(noOfViews,"true");
                         }
                     }catch (Exception e){
+                        e.printStackTrace();
                         final JSONArray radioButtonJSONOpt = eachData.getJSONArray("lstRegisterOptions");
                         for (int j = 0; j < radioButtonJSONOpt.length(); j++) {
                             if(radioselected.equalsIgnoreCase(radioButtonJSONOpt.getJSONObject(j).getString("QOption"))){
@@ -387,39 +418,16 @@ public class SurveyDetailsActivity extends AppCompatActivity {
 
                     }
 
+                } else if (eachData.getString("QuestionType").equalsIgnoreCase("checkbox")) {
+                    for(int i1=0;i1<dataModelArrayList1.size();i1++){
+                        if(dataModelArrayList1.get(i1).contains(eachData.getString("RegisterFieldId"))){
+                            dataModelArrayList.set(noOfViews, "true");
+                        }else{
+                        }
+                    }
+
                 }
-//                if (eachData.getString("QuestionType").equalsIgnoreCase("checkbox")) {
-//                    try {
-//                        if(dataModelArrayList1.size()>0){
-//                            for(int i1=0;i1<dataModelArrayList1.size();i1++){
-//                                if(dataModelArrayList1.get(i1).contains(eachData.getString("RegisterFieldId"))){
-//                                }else{
-//                                }
-//                            }
-//                        }else{
-//
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//
-////                    CheckBox tempChkBox = (CheckBox) allViewInstance.get(noOfViews);
-////                    tempChkBox.setError(null);
-////                    if (tempChkBox.isChecked()) {
-////                        validation=true;
-////                        tempChkBox.clearFocus();
-////                        dataModelArrayList.set(noOfViews,"true");
-////                    }else {
-////                        validation=false;
-////                        tempChkBox.requestFocus();
-////                        tempChkBox.setError("Required");
-////                    }
-//
-//
-//                }
-                if (eachData.getString("QuestionType").equalsIgnoreCase("text")|| eachData.getString("QuestionType").equalsIgnoreCase("textarea")) {
+                else if (eachData.getString("QuestionType").equalsIgnoreCase("text")|| eachData.getString("QuestionType").equalsIgnoreCase("textarea")) {
                     try{
                         TextView textView = (TextView) allViewInstance.get(noOfViews);
                         textView.setError(null);
@@ -454,12 +462,15 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                             textView.clearFocus();
                             validation=true;
                             dataModelArrayList.set(noOfViews,"true");
+
                         }
                     }catch (Exception e){
+                        e.printStackTrace();
                         try {
                             if(textiewsselected.contains(eachData.getString("Name"))){
                             validation=true;
                             dataModelArrayList.set(noOfViews,"true");}
+                            Log.e("btrrrr",""+textiewsselected);
                         } catch (JSONException jsonException) {
                             jsonException.printStackTrace();
                         }
@@ -470,19 +481,19 @@ public class SurveyDetailsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         for (int i=0;i<dataModelArrayList.size();i++){
-            Log.e("strrrrrrrrss","   "+dataModelArrayList.get(i));
+//            Log.e("btrrrrrrrrss","   "+dataModelArrayList.get(i));
             if(dataModelArrayList.get(i).equalsIgnoreCase("true")){
                 ia1=ia1+1;
             }else{
             }
         }
-        Log.e("strrrr",""+ia1);
-        Log.e("strrrr",""+ia2);
+        Log.e("btrrrr",""+ia1);
+        Log.e("btrrrr",""+ia2);
         if(ia1==ia2){
             try {
                 JSONArray customOptnList = jsonObject.getJSONArray("lstRegisterFields");
-                Log.e("strrrrrrr","sav "+customOptnList.length());
-                Log.e("strrrrrrr","sav "+validation);
+                Log.e("btrrrrrrr","sav "+customOptnList.length());
+                Log.e("btrrrrrrr","sav "+validation);
                 optionsObj = new JSONObject();
                 JSONArray reqs = new JSONArray();
                 for (int noOfViews = 0; noOfViews < customOptnList.length(); noOfViews++) {
@@ -490,10 +501,9 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                     if (eachData.getString("QuestionType").equalsIgnoreCase("dropdown")) {
                         Spinner spinner = (Spinner) allViewInstance.get(noOfViews);
                         JSONArray dropDownJSONOpt = eachData.getJSONArray("lstRegisterOptions");
-                        String variant_name = dropDownJSONOpt.getJSONObject(spinner.getSelectedItemPosition()).getString("QOption");
                         String selectedItemTitle = spinner.getSelectedItem().toString();
                         optionsObj.put(eachData.getString("Name"),
-                                "" + variant_name);
+                                "" + selectedItemTitle);
                         JSONObject reqObj = new JSONObject();
                         reqObj.put("RegisterFieldId",""+eachData.get("RegisterFieldId"));
                         reqObj.put("Answer",""+selectedItemTitle);
@@ -510,6 +520,7 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                             reqObj.put("Answer",""+selectedRadioBtn.getTag().toString());
                             reqs.put(reqObj);
                         }catch (Exception e){
+                            e.printStackTrace();
                             optionsObj.put(eachData.getString("Name"),
                                     ""+radioselected);
                             JSONObject reqObj = new JSONObject();
@@ -587,7 +598,7 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                             reqObj.put("Answer", "" + textView.getText().toString());
                             reqs.put(reqObj);
                         }catch (Exception e){
-
+                            e.printStackTrace();
                             optionsObj.put(eachData.getString("Name"),
                                     ""+radioselected);
                             JSONObject reqObj = new JSONObject();
@@ -602,9 +613,9 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                 try {
                     SharedPreferences prefs = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE);
                     int surverytaken = prefs.getInt("surverytaken", 0);
-                    Log.e("strrrrrr tak,",""+surverytaken);
+                    Log.e("btrrrrrr tak,",""+surverytaken);
                     surverytaken=surverytaken+1;
-                    Log.e("strrrrrr tak,",""+surverytaken);
+                    Log.e("btrrrrrr tak,",""+surverytaken);
                     SharedPreferences.Editor editor = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
                     editor.putInt("surverytaken",surverytaken);
                     editor.commit();
@@ -614,8 +625,8 @@ public class SurveyDetailsActivity extends AppCompatActivity {
 //                        String a=String.format("%.4f",resultlat);
 //                        String b=String.format("%.4f",testLatitude);
 //
-//                        Log.e("strrrrracenterLatitudea", "" + a);
-//                        Log.e("strrrrracenterLatitudeb", "" + b);
+//                        Log.e("btrrrrracenterLatitudea", "" + a);
+//                        Log.e("btrrrrracenterLatitudeb", "" + b);
 //                        Intent i = new Intent(SurveyDetailsActivity.this, ThankYouScreen.class);
 //                        i.putExtra("reqs", "" + reqs);
 //                        i.putExtra("formanews", "" + formanews);
@@ -628,8 +639,8 @@ public class SurveyDetailsActivity extends AppCompatActivity {
 //                        String c=String.format("%.4f",resultlong);
 //                        String d=String.format("%.4f",testLongitude);
 //
-//                        Log.e("strrrrracenterLatitudea", "" + a);
-//                        Log.e("strrrrracenterLatitudeb", "" + b);
+//                        Log.e("btrrrrracenterLatitudea", "" + a);
+//                        Log.e("btrrrrracenterLatitudeb", "" + b);
 //
 //                        if ((a).equalsIgnoreCase(b))
 //                        {
@@ -637,8 +648,8 @@ public class SurveyDetailsActivity extends AppCompatActivity {
 //                        } else {
 //                            resultlat= testLatitude;
 //                            resultlong= testLongitude;
-//                            Log.e("strrrrracenterLatitudee", "" + String.format("%.4f",resultlat));
-//                            Log.e("strrrrracenterLatitudee", "" + String.format("%.4f",resultlong));
+//                            Log.e("btrrrrracenterLatitudee", "" + String.format("%.4f",resultlat));
+//                            Log.e("btrrrrracenterLatitudee", "" + String.format("%.4f",resultlong));
 //                            Intent i = new Intent(SurveyDetailsActivity.this, ThankYouScreen.class);
 //                            i.putExtra("reqs", "" + reqs);
 //                            i.putExtra("formanews", "" + formanews);
@@ -650,17 +661,16 @@ public class SurveyDetailsActivity extends AppCompatActivity {
                     i.putExtra("reqs", "" + reqs);
                     i.putExtra("formanews", "" + formanews);
                     i.putExtra("formid", "" + formid);
+                    i.putExtra("DisplayName", "" + DisplayName);
                     startActivity(i);
                 }catch (Exception e){
-
+                    e.printStackTrace();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }else{
             Toast.makeText(SurveyDetailsActivity.this, "Please complete all the question", Toast.LENGTH_SHORT).show();
-
         }
     }
 

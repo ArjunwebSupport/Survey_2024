@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -65,7 +66,22 @@ public class DashboardUsersListActivity extends AppCompatActivity {
         });
         fetchingJSON();
         tvformName.setText(""+formName);
+        TextView emailid=findViewById(R.id.emailid);
 
+        SharedPreferences sharedPreferences = getSharedPreferences("LoginDetails", Context.MODE_PRIVATE);
+        String Email=sharedPreferences.getString("Email","");
+        String firstname=sharedPreferences.getString("firstname","");
+        String mobileno=sharedPreferences.getString("mobileno","");
+        if(Email.equalsIgnoreCase("null")){
+            emailid.setText("--");
+            if(firstname.equalsIgnoreCase("null")){
+                emailid.setText("--");
+            }else {
+                emailid.setText(""+firstname);
+            }
+        }else {
+            emailid.setText(""+Email);
+        }
     }
 
     @Override
@@ -75,7 +91,7 @@ public class DashboardUsersListActivity extends AppCompatActivity {
 
     private void fetchingJSON() {
         showSimpleProgressDialog(DashboardUsersListActivity.this, "Loading...", "Fetching Details", false);
-        String jsonURL = "http://prosurvey.in/API/PollAPI/DailyReportDashoardList?UserId=" + userid+"&FormId="+formId;
+        String jsonURL = "https://prosurvey.in/API/PollAPI/DailyReportDashoardList?UserId=" + userid+"&FormId="+formId;
         jsonURL = jsonURL.replace(" ", "%20");
         Log.e("strrrr", jsonURL);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
@@ -85,7 +101,6 @@ public class DashboardUsersListActivity extends AppCompatActivity {
                         Log.d("strrrrr", ">>" + response);
                         try {
                             JSONObject obj = new JSONObject(response);
-
                             dataModelArrayList1 = new ArrayList<>();
                             JSONArray dataArray = obj.getJSONArray("FormRegistersList");
                             if (dataArray.length() > 0) {
@@ -109,6 +124,8 @@ public class DashboardUsersListActivity extends AppCompatActivity {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            removeSimpleProgressDialog();
+
                         }
                     }
                 },
@@ -116,6 +133,8 @@ public class DashboardUsersListActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 //                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                        removeSimpleProgressDialog();
+
                     }
                 });
         RequestQueue requestQueue = Volley.newRequestQueue(DashboardUsersListActivity.this);

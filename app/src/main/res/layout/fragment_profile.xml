@@ -19,7 +19,6 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/survey_logo"
                 />
-
         </RelativeLayout>
 
         <ImageView
@@ -55,7 +54,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Name "
+                android:text="Full Name"
                 android:textColor="@color/colorAccent"
                 android:textSize="14dp"
                 android:layout_marginTop="10dp"
@@ -102,7 +101,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email Address "
+                android:text="User ID"
                 android:textColor="@color/colorAccent"
                 android:textSize="14dp"
                 android:layout_marginTop="10dp"

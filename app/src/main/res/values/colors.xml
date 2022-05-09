@@ -11,4 +11,7 @@
     <color name="white">#FFFFFF</color>
     <color name="textchoice">#495376</color>
     <color name="divider">#cacaca</color>
+    <color name="blue1">#0066cc</color>
+    <color name="blue3">#00ccff</color>
+    <color name="blue2">#0099cc</color>
 </resources>

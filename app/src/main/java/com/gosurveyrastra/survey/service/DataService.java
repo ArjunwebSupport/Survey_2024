@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -48,6 +49,7 @@ import retrofit.mime.TypedFile;
 import retrofit.client.Response;
 
 import static com.gosurveyrastra.survey.MainActivity.DATABASE_NAME;
+import static com.gosurveyrastra.survey.MainActivity.Internetcheck;
 import static com.gosurveyrastra.survey.ui.HomeFragment.formid;
 import static com.gosurveyrastra.survey.ui.HomeFragment.lat1;
 import static com.gosurveyrastra.survey.ui.HomeFragment.lon1;
@@ -72,7 +74,8 @@ public class DataService extends Service {
     List<Surverys> employeeList;
     private RestClient restClient;
     int i=0;
-
+    int hittingapis=0;
+    String lastrecordname="";
     public DataService() {
     }
 
@@ -201,7 +204,6 @@ public class DataService extends Service {
             Log.e("strrrrrr", "" + formname);
             String currentDateandTime = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
             Log.e("strrrrrr", "" + currentDateandTime);
-
             String insertSQL = "INSERT INTO surveryes \n" +
                     "(questionid, question_type_name, question_name" +
                     ", answer,surveyids,salary,formname,instime)\n" +
@@ -210,6 +212,12 @@ public class DataService extends Service {
             mDatabase.execSQL(insertSQL, new String[]{"" + formid, reqa, "" + finalpathstore,
                     "" + lat1, "" + lon1, "" + formid,""+formname,""+currentDateandTime});
             employeeList = new ArrayList<>();
+            String countQuery = "SELECT * FROM surveryes";
+            Cursor cursor = mDatabase.rawQuery(countQuery, null);
+            int count = cursor.getCount();
+            cursor.close();
+            Log.e("strrrrrrbefore insert",""+count);
+            icConnected1();
             try {
                 mTimer.schedule(new TimerTaskToGetInternetStatus(), 5, notify_interval);
             } catch (Exception e) {
@@ -217,6 +225,21 @@ public class DataService extends Service {
                 mTimer.schedule(new TimerTaskToGetInternetStatus(), 5, notify_interval);
             }
         }
+    }
+
+    public void checkcount(){
+        String countQuery = "SELECT * FROM surveryes";
+        Cursor cursor = mDatabase.rawQuery(countQuery, null);
+        int count = cursor.getCount();
+        cursor.close();
+        Log.e("strrrrrrcheckcount",""+count);
+        Log.e("strrrrr","before hitting api hittingapis: "+hittingapis);
+        hittingapis=0;
+//        icConnected();
+        submitapi();
+
+        Log.e("strrrrrrcheckcount",""+count);
+
     }
 
     private void startRecording() {
@@ -228,7 +251,7 @@ public class DataService extends Service {
         Log.e("strrrrrrrr",""+finalpathstore);
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setOutputFile(recordPath + "/" + recordFile);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         try {
@@ -273,8 +296,29 @@ public class DataService extends Service {
                 connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.CONNECTING ||
                 connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTING ||
                 connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTED ) {
-            hitAPI();
-            return true;
+            if(Internetcheck.equalsIgnoreCase("enable")) {
+
+                hitAPI();
+
+            }            return true;
+        } else if (
+                connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.DISCONNECTED ||
+                        connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.DISCONNECTED  ) {
+            return false;
+        }
+        return false;
+    }
+    public boolean icConnected1()
+    {
+        ConnectivityManager connec =
+                (ConnectivityManager)getSystemService(getBaseContext().CONNECTIVITY_SERVICE);
+        if ( connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.CONNECTED ||
+                connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.CONNECTING ||
+                connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTING ||
+                connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTED ) {
+            if(Internetcheck.equalsIgnoreCase("enable")) {
+                submitapi();
+            }            return true;
         } else if (
                 connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.DISCONNECTED ||
                         connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.DISCONNECTED  ) {
@@ -284,103 +328,146 @@ public class DataService extends Service {
     }
 
     public void hitAPI(){
-        Cursor cursorEmployees = mDatabase.rawQuery("SELECT * FROM surveryes", null);
-        if (cursorEmployees.moveToFirst()) {
-            do {
-                employeeList.add(new Surverys(
-                        cursorEmployees.getInt(0),
-                        cursorEmployees.getString(1),
-                        cursorEmployees.getString(2),
-                        cursorEmployees.getString(3),
-                        cursorEmployees.getString(4),
-                        cursorEmployees.getString(5),
-                        cursorEmployees.getString(6),
-                        cursorEmployees.getString(7),
-                        cursorEmployees.getString(8)
-                ));
-            } while (cursorEmployees.moveToNext());
-        }
-        if(cursorEmployees.getCount()==0){
-            i=1;
-        }else {
-            Log.e("strrrrr","before hitting api");
-            mDatabase.execSQL("delete from surveryes");
-            for(int j=0;j<employeeList.size();j++){
-                Log.e("strrrrr","before hitting api    "+employeeList.get(j).getQuestion_name());
+        Log.e("strrrrrrrrrrrr","----------------------------------------------------------------------------------------------------------------------");
+    }
 
-                TypedFile typedFile = new TypedFile("multipart/form-data", new File(employeeList.get(j).getQuestion_name()));
-                int finalJ = j;
-                int finalJ1 = j;
-                Log.e("strrrrrrrrrrrrrrrrrrrrr","str   "+employeeList.get(finalJ).getFormname());
-                Log.e("strrrrrrrrrrrrrrrrrrrrr","str   "+employeeList.get(finalJ).getQuestionid());
-                restClient.getService().upload(typedFile,""+employeeList.get(finalJ).getFormname(),Integer.parseInt(employeeList.get(finalJ).getQuestionid()), new Callback<retrofit.client.Response>() {
+    public void submitapi(){
+        Cursor cursorEmployees = mDatabase.rawQuery("SELECT * FROM surveryes", null);
+//        employeeList.clear();
+        if(cursorEmployees!=null) {
+            if (cursorEmployees.moveToFirst()) {
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  0 " + cursorEmployees.getInt(0));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  1 " + cursorEmployees.getString((1)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  2 " + cursorEmployees.getString((2)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  3 " + cursorEmployees.getString((3)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  4 " + cursorEmployees.getString((4)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  5 " + cursorEmployees.getString((5)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  6 " + cursorEmployees.getString((6)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  7 " + cursorEmployees.getString((7)));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  8 " + cursorEmployees.getString(8));
+                int s0=cursorEmployees.getInt((0));
+                String s1=cursorEmployees.getString((1));
+                String s2=cursorEmployees.getString((2));
+                String s3=cursorEmployees.getString((3));
+                String s4=cursorEmployees.getString((4));
+                String s5=cursorEmployees.getString((5));
+                String s6=cursorEmployees.getString((6));
+                String s7=cursorEmployees.getString((7));
+                String s8=cursorEmployees.getString((8));
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  8 " + s3);
+                Log.e("strrrrr", "strrrrrrrrrrrrrrrrrrrrrrr  8 " + s4);
+                TypedFile typedFile = new TypedFile("multipart/form-data", new File(cursorEmployees.getString((3))));//path
+                restClient.getService().upload(typedFile, "" + cursorEmployees.getString((7)), Integer.parseInt(cursorEmployees.getString((1))), new Callback<retrofit.client.Response>() {//name and formid
                     @Override
                     public void success(Response response, Response response2) {
                         String bodyString = new String(((TypedByteArray) response.getBody()).getBytes());
                         try {
                             JSONObject obj = new JSONObject(bodyString);
-                            Log.e("strrrrrrrrrrrrrr",""+bodyString);
-                            Log.e("strrrrrrrrrrrrrr",""+employeeList.get(finalJ).getAnswer());
-                            if(employeeList.get(finalJ).getAnswer().length()==0){
-                                i = 1;
-                            }else {
-                                PrefManager prefManager=new PrefManager(context);
-                                String userid=prefManager.getuserId();
-                                String urls="http://prosurvey.in/API/PollAPI/AddFormPost?FormId="+employeeList.get(finalJ).getQuestionid()+"&AduioUrl="+obj.getString("strfilenames")+"&Latitude="+employeeList.get(finalJ).getAnswer()+"&Longitude="+employeeList.get(finalJ).getSurveyids()+"&UserId="+userid+"&RegistrationDate="+employeeList.get(finalJ).getCurrentDateandTime();
-                                Log.e("strrrrrrr",""+urls);
-                                JsonArrayRequest req = new JsonArrayRequest(Request.Method.POST, urls,new JSONArray(employeeList.get(finalJ).getQuestion_type_name()),
+                            Log.e("strrrrrrrrrrrrrr", "" + bodyString);
+                            Log.e("strrrrrrrrrrrrrr", "" + s3);
+                            Log.e("strrrrrrrrrrrrrr", "" + lastrecordname);
+                            if(lastrecordname.equalsIgnoreCase(s3)){
+
+                            }else{
+                                lastrecordname=s3;
+                                PrefManager prefManager = new PrefManager(context);
+                                String userid = prefManager.getuserId();
+                                String urls = "https://prosurvey.in/API/PollAPI/AddFormPost?FormId="+ s6 + "&AduioUrl=" + obj.getString("strfilenames") + "&Latitude=" + s5 + "&Longitude=" + s4 + "&UserId=" + userid + "&RegistrationDate=" + s8;
+                                Log.e("strrrrrrr", "" + urls);
+                                urls=urls.replaceAll(" ", "%20");
+                                JsonArrayRequest req = new JsonArrayRequest(Request.Method.POST, urls, new JSONArray(s2.replaceAll(" ", "%20")),
                                         new com.android.volley.Response.Listener<JSONArray>() {
                                             @Override
                                             public void onResponse(JSONArray response) {
-
+                                                mDatabase.execSQL("DELETE from surveryes  WHERE id= '" + s0 + "'");
+                                                String countQuery = "SELECT * FROM surveryes";
+                                                Cursor cursor = mDatabase.rawQuery(countQuery, null);
+                                                int count = cursor.getCount();
+                                                cursor.close();
+                                                Log.e("strrrrrrcheckcount",""+count);
+                                                if(count>0){
+                                                submitapi();
+                                                }
                                             }
                                         }, new com.android.volley.Response.ErrorListener() {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
 //                                            employeeList.clear();
-                                        Log.e("strrrrrrrrrrrrrr",""+error);
-//                                            i = 1;
+                                        Log.e("strrrrrrrrrrrrrr", "" + error);
 //                                            mDatabase.execSQL("delete from surveryes");
                                         Log.e("strrrrrrrr", "Hit API Hit API ");
+                                        if(error.toString().contains("success")){
+                                            Log.e("strrrrrrrrrrrrrr", "" + error);
+//                                            mDatabase.execSQL("delete from surveryes");
+                                            Log.e("strrrrrrrr", "Hit API Hit API ");
+                                            mDatabase.execSQL("DELETE from surveryes  WHERE id= '" + s0 + "'");
+                                            String countQuery = "SELECT * FROM surveryes";
+                                            Cursor cursor = mDatabase.rawQuery(countQuery, null);
+                                            int count = cursor.getCount();
+                                            cursor.close();
+                                            Log.e("strrrrrrcheckcount",""+count);
+                                            if(count>0){
+                                                submitapi();
+                                            }
+                                        }else{
+                                            Log.e("strrrrrrrrrrrrrr", "" + error);
+//                                            mDatabase.execSQL("delete from surveryes");
+                                            Log.e("strrrrrrrr", "Hit API Hit API ");
+                                            mDatabase.execSQL("DELETE from surveryes  WHERE id= '" + s0 + "'");
+                                            String countQuery = "SELECT * FROM surveryes";
+                                            Cursor cursor = mDatabase.rawQuery(countQuery, null);
+                                            int count = cursor.getCount();
+                                            cursor.close();
+                                            Log.e("strrrrrrcheckcount",""+count);
+                                            if(count>0){
+                                                submitapi();
+                                            }
+                                        }
                                     }
-                                }){
+                                }) {
                                     @Override
-                                    public Map<String,String> getHeaders() throws AuthFailureError {
-                                        Map<String,String> headers = new HashMap<String, String>();
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> headers = new HashMap<String, String>();
                                         headers.put("Content-Type", "application/json; charset=utf-8");
                                         return headers;
-                                    } };
+                                    }
+                                };
                                 RequestQueue requestQueue2 = Volley.newRequestQueue(context);
                                 req.setRetryPolicy(new DefaultRetryPolicy(
                                         200000,
                                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                                 requestQueue2.add(req);
-
                                 try {
                                     SharedPreferences prefs = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE);
                                     int surverytaken = prefs.getInt("surverytaken", 0);
-                                    Log.e("strrrrrr tak,",""+surverytaken);
-                                    surverytaken=0;
-                                    Log.e("strrrrrr tak,",""+surverytaken);
+                                    Log.e("strrrrrr tak,", "" + surverytaken);
+                                    surverytaken = 0;
+                                    Log.e("strrrrrr tak,", "" + surverytaken);
                                     SharedPreferences.Editor editor = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
-                                    editor.putInt("surverytaken",surverytaken);
+                                    editor.putInt("surverytaken", surverytaken);
                                     editor.commit();
-                                    Log.e("strrrrrrrrrrrrrrs",""+response);
-                                }catch (Exception e){
+                                    Log.e("strrrrrrrrrrrrrrs", "" + response);
+                                } catch (Exception e) {
                                 }
                             }
-
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            hittingapis = 1;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            hittingapis = 1;
                         }
                     }
+
                     @Override
                     public void failure(RetrofitError error) {
-                        Log.e("strrrrrrr",""+error.getMessage());
+                        Log.e("strrrrrrrrrrrrrrrrrrrrr", "" + error.getMessage());
+                        hittingapis = 1;
                     }
                 });
             }
+            cursorEmployees.close();
         }
     }
 

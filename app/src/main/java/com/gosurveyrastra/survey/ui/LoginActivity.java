@@ -23,6 +23,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.gosurveyrastra.survey.BuildConfig;
 import com.gosurveyrastra.survey.MainActivity;
 import com.gosurveyrastra.survey.R;
 import com.gosurveyrastra.survey.SessionManager.PrefManager;
@@ -99,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             showSimpleProgressDialog(LoginActivity.this, "Loading...","Fetching Details",false);
-            String url = "http://prosurvey.in/API/AccountAPI/LogOn?UserName=" + email+"&pass="+password;
+            String url = "https://prosurvey.in/API/AccountAPI/LogOn?UserName=" + email+"&pass="+password+"&Version="+ BuildConfig.VERSION_CODE;
             url = url.replace(" ", "%20");
             Log.e("strrrrrrr", url);
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

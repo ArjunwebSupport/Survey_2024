@@ -24,6 +24,7 @@ public class ThankYouScreen extends AppCompatActivity {
     String reqs;
     String formid;
     String formanews;
+    String DisplayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class ThankYouScreen extends AppCompatActivity {
         reqs=getIntent().getStringExtra("reqs");
         formid=getIntent().getStringExtra("formid");
         formanews=getIntent().getStringExtra("formanews");
+        DisplayName=getIntent().getStringExtra("DisplayName");
         if (!DataService.service_status) {
             Intent intent = new Intent(ThankYouScreen.this, DataService.class);
             startService(intent);
@@ -61,12 +63,12 @@ public class ThankYouScreen extends AppCompatActivity {
                 Intent questions = new Intent(ThankYouScreen.this, SurveyDetailsActivity.class);
                 questions.putExtra("formanews",""+formanews);
                 questions.putExtra("formid",""+formid);
+                questions.putExtra("DisplayName",""+DisplayName);
                 startActivity(questions);
                 finish();
             }
         });
-        Intent mIntent = new Intent(ThankYouScreen.this, DataService.class);
-        bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+
     }
 
 
@@ -74,6 +76,12 @@ public class ThankYouScreen extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         reqs=getIntent().getStringExtra("reqs");
+        try{
+            Intent mIntent = new Intent(ThankYouScreen.this, DataService.class);
+            bindService(mIntent, mConnection, BIND_AUTO_CREATE);
+        }catch (Exception e){
+
+        }
     };
 
     ServiceConnection mConnection = new ServiceConnection() {

@@ -39,6 +39,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.gosurveyrastra.survey.BuildConfig;
 import com.gosurveyrastra.survey.R;
 import com.gosurveyrastra.survey.SessionManager.PrefManager;
 import com.gosurveyrastra.survey.SurveyDetailsActivity;
@@ -58,6 +59,7 @@ import java.util.Locale;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.MODE_PRIVATE;
+import static com.gosurveyrastra.survey.MainActivity.Internetcheck;
 
 public class HomeFragment extends Fragment {
 
@@ -67,7 +69,7 @@ public class HomeFragment extends Fragment {
     private static int PERMISSION_CODE = 21; // random
     FusedLocationProviderClient client;
     public static double lat, lon;
-    public static String lat1 = "address", lon1 = "address";
+    public static String lat1 = "n/a", lon1 = "address";
     public static String lat2 = "address", lon2 = "address";
     public static String centerLatitude = "address", centerLongitude = "address";
     public static float testLatitude = 0.0f, testLongitude = 0.0f;
@@ -116,7 +118,6 @@ public class HomeFragment extends Fragment {
         surveylist = prefs.getString("surveylist", "");
         surverytaken = prefs.getInt("surverytaken", 0);
         Log.e("strrrrrr tak,", "" + surverytaken);
-
         Log.e("strrrrrr", "" + surveylist);
         ConnectivityManager connec =
                 (ConnectivityManager) getActivity().getSystemService(getActivity().getBaseContext().CONNECTIVITY_SERVICE);
@@ -124,7 +125,44 @@ public class HomeFragment extends Fragment {
                 connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.CONNECTING ||
                 connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTING ||
                 connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTED) {
-            fetchingJSON();
+            if(Internetcheck.equalsIgnoreCase("enable")){
+                fetchingJSON();
+            }else{
+                try {
+                    JSONObject obj = new JSONObject(surveylist);
+                    dataModelArrayList = new ArrayList<>();
+                    JSONArray dataArray = obj.getJSONArray("FormsList");
+                    if (dataArray.length() > 0) {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        noevents.setVisibility(View.GONE);
+                        for (int i = 0; i < dataArray.length(); i++) {
+                            SurveyListModel playerModel = new SurveyListModel();
+                            JSONObject dataobj = dataArray.getJSONObject(i);
+                            playerModel.setFormId(dataobj.getString("FormId"));
+                            playerModel.setFormName(dataobj.getString("FormName"));
+                            playerModel.setStartDate(dataobj.getString("StartDate"));
+                            playerModel.setEndDate(dataobj.getString("EndDate"));
+                            playerModel.setBannerUrl(dataobj.getString("BannerUrl"));
+                            playerModel.setContactEmail(dataobj.getString("ContactEmail"));
+                            playerModel.setAddress(dataobj.getString("Address"));
+                            playerModel.setCity(dataobj.getString("City"));
+                            playerModel.setStateName(dataobj.getString("StateName"));
+                            playerModel.setCountryName(dataobj.getString("CountryName"));
+                            playerModel.setIsFormRegistration(dataobj.getString("IsFormRegistration"));
+                            playerModel.setIsActive(dataobj.getString("IsActive"));
+                            playerModel.setDisplayName(dataobj.getString("DisplayName"));
+                            dataModelArrayList.add(playerModel);
+                        }
+                        removeSimpleProgressDialog();
+                        setupRecycler1();
+                    } else {
+                        removeSimpleProgressDialog();
+                        noevents.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    }
+                } catch (Exception e) {
+                }
+            }
         } else if (
                 connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.DISCONNECTED ||
                         connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.DISCONNECTED) {
@@ -150,6 +188,7 @@ public class HomeFragment extends Fragment {
                         playerModel.setCountryName(dataobj.getString("CountryName"));
                         playerModel.setIsFormRegistration(dataobj.getString("IsFormRegistration"));
                         playerModel.setIsActive(dataobj.getString("IsActive"));
+                        playerModel.setDisplayName(dataobj.getString("DisplayName"));
                         dataModelArrayList.add(playerModel);
                     }
                     removeSimpleProgressDialog();
@@ -171,7 +210,7 @@ public class HomeFragment extends Fragment {
                 startActivity(new Intent(getContext(), FormActivity.class));
             }
         });
-        String url = "http://prosurvey.in/API/AccountAPI/LogOn?UserName=" + firstname + "&pass=" + pwd;
+        String url = "https://prosurvey.in/API/AccountAPI/LogOn?UserName=" + firstname + "&pass=" + pwd+"&Version="+ BuildConfig.VERSION_CODE;
         url = url.replace(" ", "%20");
         Log.e("strrrrrrr", url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -224,7 +263,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void logins() {
-        String url = "http://prosurvey.in/API/PollAPI/ActiveUsersTodayAPI?UserId=" + userid;
+        String url = "https://prosurvey.in/API/PollAPI/ActiveUsersTodayAPI?UserId=" + userid;
         url = url.replace(" ", "%20");
         Log.e("strrrrrrr", url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -258,7 +297,7 @@ public class HomeFragment extends Fragment {
 
     private void fetchingJSON() {
         showSimpleProgressDialog(getContext(), "Loading...", "Fetching Details", false);
-        String jsonURL = "http://prosurvey.in/API/PollAPI/FormsList?Type=Today&UserId=" + userid;
+        String jsonURL = "https://prosurvey.in/API/PollAPI/FormsList?Type=Today&UserId=" + userid;
         jsonURL = jsonURL.replace(" ", "%20");
         Log.e("strrrr", jsonURL);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
@@ -291,6 +330,7 @@ public class HomeFragment extends Fragment {
                                     playerModel.setCountryName(dataobj.getString("CountryName"));
                                     playerModel.setIsFormRegistration(dataobj.getString("IsFormRegistration"));
                                     playerModel.setIsActive(dataobj.getString("IsActive"));
+                                    playerModel.setDisplayName(dataobj.getString("DisplayName"));
                                     dataModelArrayList.add(playerModel);
                                 }
                                 removeSimpleProgressDialog();
@@ -368,42 +408,89 @@ public class HomeFragment extends Fragment {
                         connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.CONNECTING ||
                         connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTING ||
                         connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.CONNECTED ) {
-                    showSimpleProgressDialog(getContext(), "Loading...","Fetching Details",false);
-                    String jsonURL ="http://prosurvey.in/API/PollAPI/FormAPI?FormName="+dataModelArrayList.get(position).getFormName();
-                    jsonURL = jsonURL.replace(" ", "%20");
-                    StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    formid=""+dataModelArrayList.get(position).getFormId();
-                                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
-                                    editor.putString(""+dataModelArrayList.get(position).getFormName(),response);
-                                    editor.putString(""+dataModelArrayList.get(position).getFormId(),formid);
-                                    editor.commit();
-                                    Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
-                                    questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
-                                    questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
-                                    startActivity(questions);
-                                    getActivity().finish();
-                                }
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                }
-                            });
-                    RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-                    stringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                            20000,
-                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                    requestQueue.add(stringRequest);
+                    if(Internetcheck.equalsIgnoreCase("enable")) {
+
+                        showSimpleProgressDialog(getContext(), "Loading...", "Fetching Details", false);
+                        String jsonURL = "https://prosurvey.in/API/PollAPI/FormAPI?FormName=" + dataModelArrayList.get(position).getFormName();
+                        jsonURL = jsonURL.replace(" ", "%20");
+                        StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        formid = "" + dataModelArrayList.get(position).getFormId();
+                                        SharedPreferences.Editor editor = getActivity().getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
+                                        editor.putString("" + dataModelArrayList.get(position).getFormName(), response);
+                                        editor.putString("" + dataModelArrayList.get(position).getFormId(), formid);
+                                        editor.commit();
+                                        Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
+                                        questions.putExtra("formanews", "" + dataModelArrayList.get(position).getFormName());
+                                        questions.putExtra("formid", "" + dataModelArrayList.get(position).getFormId());
+                                        questions.putExtra("DisplayName", "" + dataModelArrayList.get(position).getDisplayName());
+
+                                        startActivity(questions);
+                                        getActivity().finish();
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                    }
+                                });
+                        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+                        stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                                20000,
+                                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                        requestQueue.add(stringRequest);
+                    }else{
+                        if(formname.isEmpty()) {
+                            showSimpleProgressDialog(getContext(), "Loading...","Fetching Details",false);
+                            String jsonURL ="https://prosurvey.in/API/PollAPI/FormAPI?FormName="+dataModelArrayList.get(position).getFormName();
+                            jsonURL = jsonURL.replace(" ", "%20");
+                            StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            formid=""+dataModelArrayList.get(position).getFormId();
+                                            SharedPreferences.Editor editor = getActivity().getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
+                                            editor.putString(""+dataModelArrayList.get(position).getFormName(),response);
+                                            editor.putString(""+dataModelArrayList.get(position).getFormId(),formid);
+                                            editor.commit();
+                                            Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
+                                            questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
+                                            questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
+                                            questions.putExtra("DisplayName",""+dataModelArrayList.get(position).getDisplayName());
+                                            startActivity(questions);
+                                            getActivity().finish();
+                                        }
+                                    },
+                                    new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                        }
+                                    });
+                            RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+                            stringRequest.setRetryPolicy(new DefaultRetryPolicy(
+                                    20000,
+                                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                            requestQueue.add(stringRequest);
+                        }else {
+                            formid=""+formids;
+                            Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
+                            questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
+                            questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
+                            questions.putExtra("DisplayName",""+dataModelArrayList.get(position).getDisplayName());
+                            startActivity(questions);
+                            getActivity().finish();
+                        }
+                    }
                 } else if (
                         connec.getNetworkInfo(0).getState() == android.net.NetworkInfo.State.DISCONNECTED ||
                                 connec.getNetworkInfo(1).getState() == android.net.NetworkInfo.State.DISCONNECTED  ) {
                     if(formname.isEmpty()) {
                         showSimpleProgressDialog(getContext(), "Loading...","Fetching Details",false);
-                        String jsonURL ="http://prosurvey.in/API/PollAPI/FormAPI?FormName="+dataModelArrayList.get(position).getFormName();
+                        String jsonURL ="https://prosurvey.in/API/PollAPI/FormAPI?FormName="+dataModelArrayList.get(position).getFormName();
                         jsonURL = jsonURL.replace(" ", "%20");
                         StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
                                 new Response.Listener<String>() {
@@ -417,6 +504,7 @@ public class HomeFragment extends Fragment {
                                         Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
                                         questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
                                         questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
+                                        questions.putExtra("DisplayName",""+dataModelArrayList.get(position).getDisplayName());
                                         startActivity(questions);
                                         getActivity().finish();
                                     }
@@ -437,6 +525,7 @@ public class HomeFragment extends Fragment {
                         Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
                         questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
                         questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
+                        questions.putExtra("DisplayName",""+dataModelArrayList.get(position).getDisplayName());
                         startActivity(questions);
                         getActivity().finish();
                     }
@@ -444,7 +533,7 @@ public class HomeFragment extends Fragment {
                 }else {
                     if(formname.isEmpty()) {
                         showSimpleProgressDialog(getContext(), "Loading...","Fetching Details",false);
-                        String jsonURL ="http://prosurvey.in/API/PollAPI/FormAPI?FormName="+dataModelArrayList.get(position).getFormName();
+                        String jsonURL ="https://prosurvey.in/API/PollAPI/FormAPI?FormName="+dataModelArrayList.get(position).getFormName();
                         jsonURL = jsonURL.replace(" ", "%20");
                         StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
                                 new Response.Listener<String>() {
@@ -458,6 +547,8 @@ public class HomeFragment extends Fragment {
                                         Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
                                         questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
                                         questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
+                                        questions.putExtra("DisplayName",""+dataModelArrayList.get(position).getDisplayName());
+
                                         startActivity(questions);
                                         getActivity().finish();
                                     }
@@ -478,6 +569,8 @@ public class HomeFragment extends Fragment {
                         Intent questions = new Intent(getActivity(), SurveyDetailsActivity.class);
                         questions.putExtra("formanews",""+dataModelArrayList.get(position).getFormName());
                         questions.putExtra("formid",""+dataModelArrayList.get(position).getFormId());
+                        questions.putExtra("DisplayName",""+dataModelArrayList.get(position).getDisplayName());
+
                         startActivity(questions);
                         getActivity().finish();
                     }
@@ -530,8 +623,6 @@ public class HomeFragment extends Fragment {
         try {
             List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
             if (addresses.size()>0){
-
-
             Address obj = addresses.get(0);
             String countryName = obj.getCountryName();
             String zipCode = obj.getPostalCode();
@@ -549,18 +640,14 @@ public class HomeFragment extends Fragment {
             Log.e("strrrrracenterLatitudea", "" + String.format("%.4f",resultlong));
 
             if(centerLatitude.equalsIgnoreCase("address")){
-
             }else {
                 Log.e("strrrrracenterLatitude", "" + String.format("%.4f", Double.parseDouble(centerLatitude)));
                 Log.e("strrrrralon1", "" + String.format("%.4f", Double.parseDouble(lon1)));
             }
             }else {
-
-//                Toast.makeText(mServer, "Address not found", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
-
         }
     }
 

@@ -8,7 +8,7 @@ import retrofit.converter.GsonConverter;
 
 public class RestClient {
     private UploadService  uploadService;
-    private String URL ="http://prosurvey.in/API/";
+    private String URL ="https://prosurvey.in/API/";
 
 
     public RestClient(){

@@ -27,16 +27,25 @@ public class ProfileFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("LoginDetails", Context.MODE_PRIVATE);
-        String userId=sharedPreferences.getString("userId","");
         String Email=sharedPreferences.getString("Email","");
         String firstname=sharedPreferences.getString("firstname","");
         String mobileno=sharedPreferences.getString("mobileno","");
         TextView phonnumber=root.findViewById(R.id.phonnumber);
         TextView emailid=root.findViewById(R.id.emailid);
         TextView address=root.findViewById(R.id.address);
-        phonnumber.setText(""+mobileno);
-        emailid.setText(""+Email);
-        address.setText(""+firstname);
+        if(mobileno.equalsIgnoreCase("null")){
+            phonnumber.setText("--");
+        }else {
+            phonnumber.setText("" + mobileno);
+        }if(Email.equalsIgnoreCase("null")){
+            emailid.setText("--");
+        }else {
+            emailid.setText(""+Email);
+        }if(firstname.equalsIgnoreCase("null")){
+            address.setText("--");
+        }else {
+            address.setText(""+firstname);
+        }
         Button logout=root.findViewById(R.id.logout);
         logout.setOnClickListener(new View.OnClickListener() {
             @Override

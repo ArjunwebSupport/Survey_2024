@@ -71,7 +71,7 @@ public class FormActivity extends AppCompatActivity {
                     etaddress.setFocusable(true);
                 }else {
                     showSimpleProgressDialog(FormActivity.this, "Loading...","Fetching Details",false);
-                    String jsonURL ="http://prosurvey.in/API/PollAPI/AddUsersData?UserId="+ userid+"&Name="+etname.getText().toString()+"&Email="+etemail.getText().toString()+"&PhoneNo="+etmobile.getText().toString()+"&Adress="+etaddress.getText().toString();
+                    String jsonURL ="https://prosurvey.in/API/PollAPI/AddUsersData?UserId="+ userid+"&Name="+etname.getText().toString()+"&Email="+etemail.getText().toString()+"&PhoneNo="+etmobile.getText().toString()+"&Adress="+etaddress.getText().toString();
                     jsonURL = jsonURL.replace(" ", "%20");
                     Log.e("strrrrrr",""+jsonURL);
                     StringRequest stringRequest = new StringRequest(Request.Method.GET, jsonURL,
@@ -96,6 +96,8 @@ public class FormActivity extends AppCompatActivity {
                             new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
+                                    removeSimpleProgressDialog();
+
                                 }
                             });
                     RequestQueue requestQueue = Volley.newRequestQueue(FormActivity.this);

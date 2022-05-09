@@ -2,6 +2,7 @@ package com.gosurveyrastra.survey;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -17,10 +18,21 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.androidstudy.networkmanager.Monitor;
 import com.androidstudy.networkmanager.Tovuti;
 import com.google.android.gms.common.ConnectionResult;
@@ -50,6 +62,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private GoogleApiClient googleApiClient;
     private final static int REQUEST_CHECK_SETTINGS_GPS = 0x1;
     private final static int REQUEST_ID_MULTIPLE_PERMISSIONS = 0x2;
+    android.app.AlertDialog.Builder counselorBuilder1;
+    android.app.AlertDialog alertDialog1;
+    public static String Internetcheck = "enable";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,14 +105,113 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         client = LocationServices.getFusedLocationProviderClient(MainActivity.this);
         checkPermissions();
         checkLocationPermission();
+        Switch sw = (Switch) findViewById(R.id.internetswitch);
+        sw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Internetcheck.equalsIgnoreCase("enable")){
+                    Internetcheck="disable";
+
+                }else{
+                    Internetcheck="enable";
+
+                }
+            }
+        });
+        if(Internetcheck.equalsIgnoreCase("enable")){
+            sw.setChecked(true);
+
+        }else{
+            sw.setChecked(false);
+
+        }
+//        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    SharedPreferences.Editor editor = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
+//                    editor.putString("internetcheck", "enable");
+//                    editor.commit();
+//                    Internetcheck="enable";
+//                    Log.e("Strrrrrr",""+Internetcheck);
+//                } else {
+//                    SharedPreferences.Editor editor = getSharedPreferences("MY_PREFS_NAME", MODE_PRIVATE).edit();
+//                    editor.putString("internetcheck", "disable");
+//                    editor.commit();
+//                    Internetcheck="disable";
+//                    Log.e("Strrrrrr",""+Internetcheck);
+//                }
+//            }
+//        });
+        Log.e("Strrrrrr",""+Internetcheck);
+
         startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:"+getPackageName())));
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
         openFragment(HomeFragment.newInstance());
         setUpGClient();
+        updatecheck();
+
     }
 
+    private void updatecheck() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://prosurvey.in/API/AccountAPI/GetVersion",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject obj = new JSONObject(response);
+                            if(obj.optString("msg").equals("success")){
+                                String pversioncode= obj.optString("VersionNo");
+                                int pversin=Integer.parseInt(pversioncode);
+                                int versionCode = BuildConfig.VERSION_CODE;
+                                if(versionCode>=pversin){
 
+                                }else {
+                                    updatepopup();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                });
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        requestQueue.add(stringRequest);
+    }
+
+    public void updatepopup() {
+        counselorBuilder1 = new AlertDialog.Builder(MainActivity.this);
+        View viewInflated = LayoutInflater.from(MainActivity.this).inflate(R.layout.updatepopup, null, false);
+        Button rate = viewInflated.findViewById(R.id.counselorid_ok);
+        Button cancel = viewInflated.findViewById(R.id.counselorid_cancel);
+        counselorBuilder1.setView(viewInflated);
+        counselorBuilder1.setCancelable(false);
+        alertDialog1 = counselorBuilder1.create();
+        alertDialog1.show();
+        alertDialog1.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        rate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog1.dismiss();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setData(Uri.parse("http://play.google.com/store/apps/details?id="+getPackageName()));
+                startActivity(intent);
+                finishAffinity();
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog1.dismiss();
+            }
+        });
+    }
 
     @Override
     public void onBackPressed() {

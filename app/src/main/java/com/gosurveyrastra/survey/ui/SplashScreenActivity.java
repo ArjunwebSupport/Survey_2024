@@ -42,7 +42,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
    private void isInternetAvailable(){
-        if(new PrefManager(this).getEmail().equals("")){
+        if(new PrefManager(this).getuserId().equals("")){
             Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();

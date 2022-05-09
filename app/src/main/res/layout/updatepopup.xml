@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/text_paytm12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:paddingLeft="15dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:paddingRight="15dp"
+                android:text="There is newer version of this application available, click Update to upgrade now."
+                android:textAllCaps="true"
+                android:textColor="#454242"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+        <EditText
+            android:id="@+id/counselorid_edit"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:inputType="textCapCharacters"
+            android:layout_height="match_parent"
+            android:hint="Report name"
+            android:textDirection="locale"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginRight="5dp"
+            android:visibility="gone"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/counselor_border"
+            />
+        <LinearLayout
+            android:layout_marginBottom="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/counselorid_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:background="@drawable/counselor_cancel1"
+                android:fontFamily="@font/montserratmedium"
+                android:text="Skip" />
+            <Button
+                android:id="@+id/counselorid_ok"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:background="@drawable/counselor_cancel1"
+                android:fontFamily="@font/montserratmedium"
+                android:text="Update" />
+
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
