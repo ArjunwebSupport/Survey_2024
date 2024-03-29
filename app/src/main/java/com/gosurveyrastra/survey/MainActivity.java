@@ -33,8 +33,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.androidstudy.networkmanager.Monitor;
-import com.androidstudy.networkmanager.Tovuti;
+//import com.androidstudy.networkmanager.Monitor;
+//import com.androidstudy.networkmanager.Tovuti;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -223,29 +223,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     void doLocationStuff () {
-        Tovuti.from(this).monitor(new Monitor.ConnectivityListener() {
-            @Override
-            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast) {
-                if (isConnected) {
-
-                } else {
-                    Toast.makeText(MainActivity.this, "No Internet Access", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//        Tovuti.from(this).monitor(new Monitor.ConnectivityListener() {
+//            @Override
+//            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast) {
+//                if (isConnected) {
+//
+//                } else {
+//                    Toast.makeText(MainActivity.this, "No Internet Access", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
     }
 
     void doNoLocationStuff () {
-        Tovuti.from(this).monitor(new Monitor.ConnectivityListener() {
-            @Override
-            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast) {
-                if (isConnected) {
-
-                } else {
-                    Toast.makeText(MainActivity.this, "No Internet Access", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//        Tovuti.from(this).monitor(new Monitor.ConnectivityListener() {
+//            @Override
+//            public void onConnectivityChanged(int connectionType, boolean isConnected, boolean isFast) {
+//                if (isConnected) {
+//
+//                } else {
+//                    Toast.makeText(MainActivity.this, "No Internet Access", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
     }
 
     private synchronized void setUpGClient() {
